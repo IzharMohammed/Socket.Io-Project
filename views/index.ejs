@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Socket io</h1>
+    <h2><%= id %></h2>
+
+    <input type="text" type="hidden" data-roomid="<%= id %>" id="startChat" />
+    <input type="text" id="username" placeholder="username..." />
+    <input type="text" id="newmsg" placeholder="message.." />
+    <button id="btn">Start</button>
+    <ul id="msglist"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+      let username = document.getElementById("username");
+      let inputMsg = document.getElementById("newmsg");
+      let btn = document.getElementById("btn");
+      let msglist = document.getElementById("msglist");
+      let startChat = document.getElementById("startChat");
+      let roomid = startChat.getAttribute("data-roomid");
+      btn.onclick = function exec() {
+        socket.emit("msg_sent", {
+          msg: inputMsg.value,
+          username: username.value,
+          roomid,
+        });
+      };
+
+      socket.on("msg_rcvd", (data) => {
+        console.log("From client", data);
+        const li = document.createElement("li");
+        li.innerText = data.msg;
+        msglist.append(li);
+      });
+
+      socket.on("connect", () => {
+        socket.emit("join_room", { roomid });
+      });
+    </script>
+  </body>
+</html>
