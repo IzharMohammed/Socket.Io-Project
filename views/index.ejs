@@ -7,13 +7,17 @@
   </head>
   <body>
     <h1>Socket io</h1>
-    <h2><%= id %></h2>
+    <h2><%=  %></h2>
 
     <input type="text" type="hidden" data-roomid="<%= id %>" id="startChat" />
     <input type="text" id="username" placeholder="username..." />
     <input type="text" id="newmsg" placeholder="message.." />
     <button id="btn">Start</button>
-    <ul id="msglist"></ul>
+    <ul id="msglist">
+      <% for(let i=0; i < chats.length; i++) { %>
+        <li><%= chats[i].username %> : <%= chats[i].message %></li>
+     <% } %>
+    </ul>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>

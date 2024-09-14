@@ -3,7 +3,9 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { PrismaClient } from '@prisma/client';
 const app = express();
+const prisma = new PrismaClient();
 const server = createServer(app);
 const io = new Server(server);
 // Create __dirname for ES Modules
@@ -20,8 +22,15 @@ io.on('connection', (socket) => {
         console.log(`event coming from client`);
     })
 
-    socket.on('msg_sent', (data) => {
+    socket.on('msg_sent', async (data) => {
         console.log('from server', data);
+        await prisma.chat.create({
+            data: {
+                username: data.username,
+                message: data.msg,
+                roomId: data.roomid
+            }
+        })
         io.to(data.roomid).emit('msg_rcvd', data);
     })
     socket.on('join_room', (data) => {
@@ -30,9 +39,6 @@ io.on('connection', (socket) => {
 
     })
 
-    setInterval(() => {
-        // socket.emit('from_server');
-    }, 2000);
 });
 
 
@@ -40,9 +46,16 @@ io.on('connection', (socket) => {
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, '/public')));
 app.get('/chat/:roomid', async (req, res) => {
+    const chats = await prisma.chat.findMany({
+        where: {
+            roomId: req.params.roomid
+    }})
+    console.log(chats);
+    
     res.render('index', {
         name: 'izhar',
-        id: req.params.roomid
+        id: req.params.roomid,
+        chats
     })
 })
 server.listen(3000, () => {
