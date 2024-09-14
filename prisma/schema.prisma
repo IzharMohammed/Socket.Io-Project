@@ -12,3 +12,10 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model chat {
+  id Int @id @default(autoincrement())
+  username String
+  message String
+  roomId String
+}

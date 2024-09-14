@@ -1,0 +1,15 @@
+services:
+  socket_db:
+    container_name: socket_db # Name of the database container
+    image: postgres:12 # Using the official Postgres image, version 12
+    restart: always # Automatically restart the container if it stops
+    environment:
+      POSTGRES_USER: postgres # Postgres user set as 'postgres'
+      POSTGRES_PASSWORD: postgres # Password for Postgres user set as 'postgres'
+      POSTGRES_DB: postgres # Name of the default database created in Postgres
+    ports:
+      - 5433:5432 # Map port 5432 of the host to port 5432 in the db container (Postgres default port)
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Mount a named volume (pgdata) to persist Postgres data across container restarts
+volumes:
+  pgdata: {} # Definition of the named volume 'pgdata' for persistent storage
