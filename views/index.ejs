@@ -7,28 +7,43 @@
   </head>
   <body>
     <h1>Socket io</h1>
-    <h2><%=  %></h2>
 
+    <!-- Hidden input to store the room ID (assigned via EJS templating) -->
     <input type="text" type="hidden" data-roomid="<%= id %>" id="startChat" />
+
+    <!-- Input fields for username and new message -->
     <input type="text" id="username" placeholder="username..." />
+
     <input type="text" id="newmsg" placeholder="message.." />
+
+    <!-- Button to start sending messages -->
     <button id="btn">Start</button>
+    
+    <!-- Unordered list to display chat messages -->
     <ul id="msglist">
+      <!-- Loop through the chats array (provided by EJS) to display messages -->
       <% for(let i=0; i < chats.length; i++) { %>
         <li><%= chats[i].username %> : <%= chats[i].message %></li>
      <% } %>
     </ul>
 
+    <!-- Include Socket.io client library -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
+      // Initialize the Socket.io client
       var socket = io();
+      // DOM elements for user interaction
       let username = document.getElementById("username");
       let inputMsg = document.getElementById("newmsg");
       let btn = document.getElementById("btn");
       let msglist = document.getElementById("msglist");
       let startChat = document.getElementById("startChat");
+      // Get the room ID from the hidden input field
       let roomid = startChat.getAttribute("data-roomid");
+
+      // Button click event to send a message
       btn.onclick = function exec() {
+        // Emit 'msg_sent' event to the server with the message, username, and room ID
         socket.emit("msg_sent", {
           msg: inputMsg.value,
           username: username.value,
@@ -36,13 +51,16 @@
         });
       };
 
+      // Listen for 'msg_rcvd' event from the server to receive messages
       socket.on("msg_rcvd", (data) => {
         console.log("From client", data);
+        // Create a new list item for the message and append it to the message list
         const li = document.createElement("li");
         li.innerText = data.msg;
         msglist.append(li);
       });
 
+      // On connection, emit 'join_room' event to join a specific room
       socket.on("connect", () => {
         socket.emit("join_room", { roomid });
       });
